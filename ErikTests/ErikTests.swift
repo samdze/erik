@@ -8,16 +8,15 @@
 
 import XCTest
 @testable import Erik
-import FileKit
 import BrightFutures
 
 let url = URL(string:"https://www.google.com")!
 let PageLoadedPolicy: WebKitLayoutEngine.PageLoadedPolicy = .navigationDelegate
 
 let inputSelector  = "input[name='q']"
-#if os(OSX)
+#if canImport(AppKit)
 let googleFormSelector = "f"
-#elseif os(iOS)
+#elseif canImport(UIKit)
 let googleFormSelector = "gs"
 #endif
 class ErikTests: XCTestCase {
@@ -76,6 +75,7 @@ class ErikTests: XCTestCase {
         let currentContentExpectation = self.expectation(description: "currentContent")
 
         Erik.visit(url: url) { (obj, err) -> Void in
+            print(obj?.innerHTML)
             if let error = err {
                 print(error)
                 
@@ -316,23 +316,6 @@ class ErikTests: XCTestCase {
         self.waitForExpectations(timeout: 20, handler: { error in
             XCTAssertNil(error, "Oh, we got timeout")
         })
-    }
-
-    func testSnapShot() {
-        if let engine = Erik.sharedInstance.layoutEngine as? WebKitLayoutEngine,
-            let data: ErikImage = engine.snapshot(CGSize(width: 600, height: 400)) {
-            
-            let path = Path.userTemporary + "erik\(Date().timeIntervalSince1970).png"
-            
-            print("Write snapshot to \(path)")
-            
-            do {
-                try data |> File<ErikImage>(path: path)
-            }
-            catch let e {
-                XCTFail("\(e)")
-            }
-        }
     }
 
     func testFuture() {

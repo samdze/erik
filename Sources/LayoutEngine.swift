@@ -266,7 +266,7 @@ extension WebKitLayoutEngine {
                 completionHandler(ErikError.timeOutError(time: pageLoadTimeout))
                 return
             }
-        #if os(OSX)
+        #if canImport(AppKit)
             RunLoop.current.run(mode: RunLoop.Mode.default, before: Date.distantFuture)
         #endif
         }
@@ -296,14 +296,14 @@ extension WebKitLayoutEngine {
     }
 }
 
-#if os(iOS)
+#if canImport(UIKit)
     public typealias ErikImage = UIImage
-#elseif os(OSX)
+#elseif canImport(AppKit)
     public typealias ErikImage = NSImage
 #endif
 extension WebKitLayoutEngine {
    public func snapshot(_ size: CGSize) -> ErikImage? {
-        #if os(iOS)
+        #if canImport(UIKit)
             if let capturedView: UIView = self.webView.snapshotView(afterScreenUpdates: false) {
                 UIGraphicsBeginImageContextWithOptions(size, true, 0)
                 let ctx = UIGraphicsGetCurrentContext()
@@ -315,7 +315,7 @@ extension WebKitLayoutEngine {
                 UIGraphicsEndImageContext();
                 return image
             }
-        #elseif os(OSX)
+        #elseif canImport(AppKit)
             if let view = self.webView.subviews.first,
                 let rep: NSBitmapImageRep = view.bitmapImageRepForCachingDisplay(in: view.bounds) {
                 view.cacheDisplay(in: view.bounds, to:rep)
